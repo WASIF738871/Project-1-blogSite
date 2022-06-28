@@ -92,7 +92,7 @@ const updateBlogs = async function (req, res) {
         if (updatedData.isPublished == true) {
             updatedData.publishedAt = Date.now()
             await updatedData.save()
-            return res.status(200).send({status:true, data: updatedData, msg : "data updated successfully"})
+            return res.status(200).send({status:true, msg : "data updated successfully", data: updatedData})
         }else {
             updatedData.publishedAt = null
             await updatedData.save()
@@ -130,7 +130,7 @@ const deleteBlogsByQuery = async function (req, res) {
         let deleteData = await blogModel.updateMany({ 
 
             authorId : req.decodedToken.authorId,
-            isDeleted: false, $and: [{ authorId: authorId },
+            isDeleted: false, $or: [{ authorId: authorId },
             { isPublished: isPublished },
             { tags: tags },
             { category: category },
