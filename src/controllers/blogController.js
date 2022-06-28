@@ -42,7 +42,7 @@ const createBlog = async function (req, res) {
         }
 
         let createdBlog = await blogModel.create(req.body)
-        res.status(201).send({ status: true, data: createdBlog, msg: "Your blog has been created successfully" })
+        res.status(201).send({ status: true, msg: "Your blog has been created successfully", data: createdBlog })
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message })
     }
@@ -59,7 +59,7 @@ const getBlogs = async function (req, res) {
             return res.status(404).send({ status: false, msg: "no such document found" })
         }
 
-        return res.status(200).send({ status: true, data: blog, msg: "here all blogs are, related to your search" })
+        return res.status(200).send({ status: true, msg: "here all blogs are, related to your search", data: blog })
     } catch (err) {
        return res.status(500).send({ status: false, msg: err.message })
     }
@@ -98,7 +98,7 @@ const updateBlogs = async function (req, res) {
             await updatedData.save()
         }
 
-        return res.status(200).send({ status: true, data: updatedData, msg : "data updated successfully"})
+        return res.status(200).send({ status: true, msg : "data updated successfully", data: updatedData})
     } catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
     }
@@ -114,7 +114,7 @@ const deleteBlogByPathParam = async function (req, res) {
             { _id: blogId, isDeleted: false }, 
             {$set:  {isDeleted: true}, deletedAt : Date.now()}, 
             { new: true })
-        return res.status(200).send({ status: true, data: deletedBlog, msg: "This blog is deleted" })
+        return res.status(200).send({ status: true, msg: "This blog is deleted", data: deletedBlog })
     } catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
     }
@@ -130,7 +130,7 @@ const deleteBlogsByQuery = async function (req, res) {
         let deleteData = await blogModel.updateMany({ 
 
             authorId : req.decodedToken.authorId,
-            isDeleted: false, $or: [{ authorId: authorId },
+            isDeleted: false, $and: [{ authorId: authorId },
             { isPublished: isPublished },
             { tags: tags },
             { category: category },
@@ -143,7 +143,7 @@ const deleteBlogsByQuery = async function (req, res) {
             return res.status(404).send({status: false, msg: "All documents are already deleted"})
         }
 
-        return res.status(200).send({ status: true, data: deleteData, msg: "Now, following blogs are deleted " })
+        return res.status(200).send({ status: true, msg: "Now, following blogs are deleted ", data: deleteData })
     } catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
     }
@@ -151,10 +151,12 @@ const deleteBlogsByQuery = async function (req, res) {
 
 
 
-module.exports.createBlog = createBlog;
-module.exports.getBlogs = getBlogs;
-module.exports.updateBlogs = updateBlogs;
-module.exports.deleteBlogByPathParam = deleteBlogByPathParam
-module.exports.deleteBlogsByQuery = deleteBlogsByQuery
+module.exports = {
+    createBlog,
+    getBlogs,
+    updateBlogs,
+    deleteBlogByPathParam,
+    deleteBlogsByQuery
+}
 
 

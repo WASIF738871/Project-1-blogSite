@@ -29,8 +29,8 @@ const createAuthor = async function (req, res) {
             return res.status(400).send({ status: false, msg: "title is missing" })
         }
 
-        if(!(title == "Mrs" || title == "Mr" || title == "Miss")) {
-           return res.status(401).send({error : "title has to be Mr or Mrs or Miss "})
+        if (!(title == "Mrs" || title == "Mr" || title == "Miss")) {
+            return res.status(401).send({ error: "title has to be Mr or Mrs or Miss " })
         }
 
         if (!email) {
@@ -39,12 +39,12 @@ const createAuthor = async function (req, res) {
 
         let checkEmail = validator.validate(email)
         if (!checkEmail) {
-            return res.status(400).send({ status: false, msg: "please enter email in valid format " })
+            return res.status(400).send({ status: false, msg: `please enter ${email} in valid format` })
         }
 
         let uniqueEmail = await authorModel.findOne({ email: email })
         if (uniqueEmail) {
-            return res.status(400).send({ status: false, msg: "This email already exists" })
+            return res.status(400).send({ status: false, msg: `${email} already exists` })
         }
 
         if (!password) {
@@ -52,12 +52,12 @@ const createAuthor = async function (req, res) {
         }
 
         if (checkPassword === false) {
-            return res.status(400).send({ status: false, msg: "password should have min 8 character + one Uppercase + one lowercase + min 2 digits + should not have any space + should not be one of these : Passw0rd, Password123,mypassword" })
+            return res.status(400).send({ status: false, msg: `${password} should have min 8 character + one Uppercase + one lowercase + min 2 digits + should not have any space + should not be one of these : Passw0rd, Password123,mypassword` })
         }
 
         let savedData = await authorModel.create(req.body)
-        
-        return res.status(201).send({ status: true, data: savedData, msg: "New author is created successfully"  })
+
+        return res.status(201).send({ status: true, msg: " you are registered successfully", data: savedData })
 
     } catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
@@ -95,12 +95,14 @@ const loginAuthor = async function (req, res) {
         )
 
         res.setHeader("x-api-key", token)
-        
-        return res.status(200).send({ status: true, data: token, msg: "you are successfully loggedin" })
+
+        return res.status(200).send({ status: true, msg: "you are successfully loggedin", data: token })
     } catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
     }
 }
 
-module.exports.createAuthor = createAuthor
-module.exports.loginAuthor = loginAuthor;
+module.exports = {
+    createAuthor,
+    loginAuthor
+}
