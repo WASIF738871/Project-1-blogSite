@@ -91,6 +91,9 @@ const authorizationForQuery = async function (req, res, next) {
 }
 
 
-module.exports.authentication = authentication
-module.exports.authorization = authorization
-module.exports.authorizationForQuery = authorizationForQuery
+
+module.exports = {
+    authentication,
+    authorization,
+    authorizationForQuery
+}
