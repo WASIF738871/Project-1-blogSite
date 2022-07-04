@@ -1,5 +1,7 @@
 const blogModel = require('../models/blogModel');
 const authorModel = require('../models/authorModel');
+const regValidator = require('../validator/validator')
+const { isValidFormat, cutSpace, cutBlogSpace } = regValidator
 
 //  API - 2 || TO CREATE BLOGS
 
@@ -7,6 +9,11 @@ const createBlog = async function (req, res) {
 
     try {
         let { title, body, authorId, category } = req.body;
+        let blogTitle = cutBlogSpace(title)
+        req.body.title = blogTitle
+        let blogBody = cutBlogSpace(body)
+        req.body.body = blogBody
+
 
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, msg: "Please request data to be created" })
