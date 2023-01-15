@@ -2,10 +2,6 @@
 
 https://github.com/sabihak89/radon/tree/project/blog#radon
 
-1- delete and update api me blogId nahi deta hai toh error handle karna hai ya nahi ? - ye shayad se karna hi nahi h 
-2- status codes ko sabko recheck karna hai phir se 
-
-
 https://github.com/jai84322/project-blog.git
 
 # Radon
