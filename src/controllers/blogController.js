@@ -74,8 +74,8 @@ const getBlogs = async function (req, res) {
 
 const updateBlogs = async function (req, res) {
     try {
-        let {title, body, authorId, category, isPublished, tags, subcategory} = req.body
-        let blogId = req.params.blogId
+        let {title, body, authorId, category, isPublished, tags, subcategory} = req.body;
+        let blogId = req.params.blogId;
 
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, msg: "Please enter the data in the request body" })

@@ -3,10 +3,12 @@ const blogModel = require('../models/blogModel')
 
 const authentication = async function (req, res, next) {
     try {
-        let token = req.headers["x-api-key" || "X-Api-Key"]
+        // let token = req.headers["x-api-key" || "X-Api-Key"]
+        let token = req.headers.authorization
         if (!token) {
             return res.status(400).send({ status: false, msg: "please send the token" })
         }
+        token = token.split(' ')[1];
 
         let decodedToken = jwt.verify(token, "WaJaiDhi-radon", function (error, token) {
             if (error) {
@@ -15,12 +17,11 @@ const authentication = async function (req, res, next) {
                 return token
             }
         })
-
         if (decodedToken == undefined) {
             return res.status(401).send({ status: false, msg: "invalid token" })
         }
 
-        req["decodedToken"] = decodedToken
+        req["decodedToken"] = decodedToken;
         next()
 
     } catch (err) {
@@ -37,17 +38,17 @@ const authorization = async function (req, res, next) {
 
 
         if (id.length != 24) {
-            return res.status(400).send({ status: false, msg: "please enter the blog id or Please enter proper length of blog Id" })
+            return res.status(400).send({ status: false, msg: "please enter the blog id or Please enter proper length of blog Id" });
         }
 
-        let checkBlog = await blogModel.findById(id)
+        let checkBlog = await blogModel.findById(id);
 
         if (!checkBlog) {
-            return res.status(404).send({ status: false, msg: "no such blog exists" })
+            return res.status(404).send({ status: false, msg: "no such blog exists" });
         }
 
         if (checkBlog.authorId != validAuthorId) {
-            return res.status(403).send({ status: false, msg: "Author is not authorized" })
+            return res.status(403).send({ status: false, msg: "Author is not authorized" });
         }
 
         if (checkBlog.isDeleted == true) {
