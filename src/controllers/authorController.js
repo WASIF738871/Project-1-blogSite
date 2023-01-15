@@ -1,9 +1,13 @@
-const authorModel = require('../models/authorModel')
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');           //Bcrypt uses the Blowfish cipher algorithm.
 const validator = require('email-validator')
-const jwt = require('jsonwebtoken')
 const passwordValidator = require('password-validator');
-const regValidator = require('../validator/validator')
-const { isValidFormat, cutSpace } = regValidator
+const authorModel = require('../models/authorModel')
+
+require('dotenv').config();
+const { SECRET_KEY } = process.env;
+const { isValidFormat, cutSpace } = require('../validator/validator')
+
 
 // API- 1 || TO CREATE AUTHORS
 
@@ -12,10 +16,9 @@ const createAuthor = async function (req, res) {
 
         let { fname, lname, title, email, password } = req.body
 
-        let firstName = cutSpace(fname)
-        req.body.fname = firstName
-        let lastName = cutSpace(lname)
-        req.body.lname = lastName
+
+        req.body.fname = cutSpace(fname)
+        req.body.lname = cutSpace(lname)
 
         let schema = new passwordValidator();
         schema.is().min(8).is().max(100).has().uppercase().has().lowercase().has().digits(2).has().not().spaces().is().not().oneOf(['Passw0rd', 'Password123', 'mypassword']);
@@ -68,6 +71,8 @@ const createAuthor = async function (req, res) {
             return res.status(400).send({ status: false, msg: `${password} should have min 8 character + one Uppercase + one lowercase + min 2 digits + should not have any space + should not be one of these : Passw0rd, Password123,mypassword` })
         }
 
+        const saltRounds = 10;
+        req.body.password = await bcrypt.hash(password, saltRounds);        //salting and hashing for encrypting password
 
         let savedData = await authorModel.create(req.body)
         return res.status(201).send({ status: true, msg: " you are registered successfully", data: savedData })
@@ -93,10 +98,16 @@ const loginAuthor = async function (req, res) {
             return res.status(400).send({ status: false, msg: "please enter password " })
         }
 
-        let user = await authorModel.findOne({ email: email, password: password });
+        let user = await authorModel.findOne({ email: email });
         if (!user) {
-            return res.status(400).send({ status: false, msg: "email or password is incorrect " })
+            return res.status(400).send({ status: false, msg: "email is incorrect " })
         }
+
+        const passwordVarification = await bcrypt.compare(password, user.password);     //will return true or false boolean value
+        if (!passwordVarification) {
+            return res.status(400).send({ status: false, msg: "Password is incorrect " })
+        }
+
 
         let token = jwt.sign(
             {
@@ -104,7 +115,8 @@ const loginAuthor = async function (req, res) {
                 batch: "radon",
                 organisation: "functionUp"
             },
-            "WaJaiDhi-radon"
+            SECRET_KEY,
+            { expiresIn: "24hrs" }
         )
 
         res.setHeader("x-api-key", token)
